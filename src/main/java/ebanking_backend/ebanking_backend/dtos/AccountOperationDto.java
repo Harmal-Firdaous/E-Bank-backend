@@ -1,11 +1,7 @@
 package ebanking_backend.ebanking_backend.dtos;
 
-
 import ebanking_backend.ebanking_backend.enums.OperationType;
-import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.Date;
 
