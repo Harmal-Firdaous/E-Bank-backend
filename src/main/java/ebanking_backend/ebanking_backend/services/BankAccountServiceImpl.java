@@ -26,8 +26,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import static java.util.stream.Collectors.toList;
-
 @Service
 @Transactional
 @AllArgsConstructor
@@ -54,9 +52,8 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
     @Override
     public CurrentBankAccountDto saveCurrentBankAccount(double initialBalance, double overDraft, Long customerId) {
-
         Customer customer = customerRepository.findById(customerId).orElseThrow(
-                () -> new CustomerNotFoundException(CUSTOMER_NOT_FOUND + customerId)
+                () -> new CustomerNotFoundException(CUSTOMMARY_NOT_FOUND + customerId)
         );
 
         CurrentAccount bankAccount = new CurrentAccount();
@@ -91,8 +88,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
     @Override
     public List<CustomerDto> listCustomers() {
-        List<Customer> customers = customerRepository.findAll();
-        return customers.stream()
+        return customerRepository.findAll().stream()
                 .map(customerMapper::fromCustomer)
                 .toList();
     }
@@ -102,6 +98,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(
                 () -> new BankAccountNotFoundException(ACCOUNT_NOT_FOUND + accountId)
         );
+
         if (bankAccount instanceof CurrentAccount currentAccount) {
             return bankAccountMapper.fromCurrentBankAccount(currentAccount);
         } else if (bankAccount instanceof SavingAccount savingAccount) {
@@ -157,8 +154,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
     @Override
     public List<BankAccountDto> bankAccountList() {
-        List<BankAccount> all = bankAccountRepository.findAll();
-        return all.stream()
+        return bankAccountRepository.findAll().stream()
                 .map(bankAccount -> {
                     if (bankAccount instanceof CurrentAccount currentAccount) {
                         return bankAccountMapper.fromCurrentBankAccount(currentAccount);
@@ -200,8 +196,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
 
     @Override
     public List<AccountOperationDto> accountHistory(String accountId) {
-        List<AccountOperation> operations = accountOperationRepository.findByBankAccountId(accountId);
-        return operations.stream()
+        return accountOperationRepository.findByBankAccountId(accountId).stream()
                 .map(accountOperationMapper::fromAccountOperation)
                 .toList();
     }
@@ -211,6 +206,7 @@ public class BankAccountServiceImpl implements IBankAccountService {
         BankAccount bankAccount = bankAccountRepository.findById(accountId).orElseThrow(
                 () -> new BankAccountNotFoundException(ACCOUNT_NOT_FOUND + accountId)
         );
+
         Page<AccountOperation> accountOperations =
                 accountOperationRepository.findByBankAccountId(accountId, PageRequest.of(page, size));
 
@@ -233,7 +229,6 @@ public class BankAccountServiceImpl implements IBankAccountService {
     public List<CustomerDto> searchCustomers(String keyword) {
         return customerRepository.findByNameContaining(keyword).stream()
                 .map(customerMapper::fromCustomer)
-                .collect(toList());
+                .toList();
     }
-
 }
