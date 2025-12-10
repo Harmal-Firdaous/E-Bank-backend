@@ -1,7 +1,6 @@
 package ebanking_backend.ebanking_backend.web;
 
 import ebanking_backend.ebanking_backend.dtos.*;
-
 import ebanking_backend.ebanking_backend.services.IBankAccountService;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +15,7 @@ public class BankAccountController {
     private IBankAccountService bankAccountService;
 
     @GetMapping("/accounts/{accountId}")
-    public BankAccountDto getBankAccount(String accountId) {
+    public BankAccountDto getBankAccount(@PathVariable String accountId) {
         return bankAccountService.getBankAccount(accountId);
     }
 
@@ -39,14 +38,16 @@ public class BankAccountController {
 
     @PostMapping("/accounts/debit")
     public DebitDto debit(@RequestBody DebitDto debitDTO) {
-        this.bankAccountService.debit(debitDTO.getAccountId(),debitDTO.getAmount(),debitDTO.getDescription());
+        this.bankAccountService.debit(debitDTO.getAccountId(), debitDTO.getAmount(), debitDTO.getDescription());
         return debitDTO;
     }
+
     @PostMapping("/accounts/credit")
     public CreditDto credit(@RequestBody CreditDto creditDTO) {
-        this.bankAccountService.credit(creditDTO.getAccountId(),creditDTO.getAmount(),creditDTO.getDescription());
+        this.bankAccountService.credit(creditDTO.getAccountId(), creditDTO.getAmount(), creditDTO.getDescription());
         return creditDTO;
     }
+
     @PostMapping("/accounts/transfer")
     public void transfer(@RequestBody TransferRequestDto transferRequestDTO) {
         this.bankAccountService.transfer(
