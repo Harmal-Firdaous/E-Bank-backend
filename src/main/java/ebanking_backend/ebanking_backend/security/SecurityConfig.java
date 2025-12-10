@@ -40,15 +40,27 @@ public class SecurityConfig {
     @Value("${jwt.secret}")
     private String secretKey;
 
+    @Value("${app.user1.username}")
+    private String user1Username;
+
+    @Value("${app.user1.password}")
+    private String user1Password;
+
+    @Value("${app.user2.username}")
+    private String user2Username;
+
+    @Value("${app.user2.password}")
+    private String user2Password;
+
     @Bean
     public InMemoryUserDetailsManager inMemoryUserDetailsManager() {
         return new InMemoryUserDetailsManager(
-                User.withUsername("Firdaous")
-                        .password(passwordEncoder().encode("123123"))
+                User.withUsername(user1Username)
+                        .password(passwordEncoder().encode(user1Password))
                         .roles("USER")
                         .build(),
-                User.withUsername("Aicha")
-                        .password(passwordEncoder().encode("123123"))
+                User.withUsername(user2Username)
+                        .password(passwordEncoder().encode(user2Password))
                         .roles("ADMIN")
                         .build()
         );
@@ -64,7 +76,7 @@ public class SecurityConfig {
         http
                 .csrf(AbstractHttpConfigurer::disable)
                 .cors(Customizer.withDefaults())
-                .authorizeHttpRequests((requests) -> requests
+                .authorizeHttpRequests(requests -> requests
                         .requestMatchers("/auth/login/**").permitAll()
                         .anyRequest().authenticated())
                 .sessionManagement(session -> session.sessionCreationPolicy(STATELESS))
@@ -80,15 +92,17 @@ public class SecurityConfig {
     @Bean
     JwtDecoder jwtDecoder() {
         SecretKeySpec secretKeySpec = new SecretKeySpec(secretKey.getBytes(), "HmacSHA256");
-        return NimbusJwtDecoder.withSecretKey(secretKeySpec).macAlgorithm(MacAlgorithm.HS256).build();
+        return NimbusJwtDecoder.withSecretKey(secretKeySpec)
+                .macAlgorithm(MacAlgorithm.HS256)
+                .build();
     }
 
     @Bean
     public AuthenticationManager authenticationManager(UserDetailsService userDetailsService) {
-        DaoAuthenticationProvider daoAuthenticationProvider = new DaoAuthenticationProvider();
-        daoAuthenticationProvider.setPasswordEncoder(passwordEncoder());
-        daoAuthenticationProvider.setUserDetailsService(userDetailsService);
-        return new ProviderManager(daoAuthenticationProvider);
+        DaoAuthenticationProvider provider = new DaoAuthenticationProvider();
+        provider.setPasswordEncoder(passwordEncoder());
+        provider.setUserDetailsService(userDetailsService);
+        return new ProviderManager(provider);
     }
 
     @Bean
